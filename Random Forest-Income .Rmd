@@ -1,0 +1,74 @@
+---
+title: "Random Forest"
+author: "Amin Fesharaki"
+date: "11/19/2021"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(randomForest)
+
+```
+
+
+
+```{r}
+#Import Datasets
+adult_test <- read.csv(file = "/Users/datascience/Desktop/ADS 502 Data Sets/Website Data Sets/adult_ch6_test.csv")
+adult_train <- read.csv(file = "/Users/datascience/Desktop/ADS 502 Data Sets/Website Data Sets/adult_ch6_training.csv")
+ 
+```
+
+#19. Use random forests on the training data set to predict income using marital status and capital gains and losses.
+
+```{r}
+# Change the name to eliminate spaces
+colnames(adult_train)[1] <- "maritalStatus"
+
+# Change categorical variables into factors
+adult_train$Income <- factor(adult_train$Income)
+adult_train$maritalStatus <- factor(adult_train$maritalStatus)
+
+# Random Forest 
+rfo1 <- randomForest(formula = Income ~ maritalStatus + Cap_Gains_Losses, data = adult_train, ntree = 100, type = "classification")
+
+# Predictions
+head(rfo1$predicted) # To eliminate knitting 18761 entries
+summary((rfo1$predicted)) # Summary of Predictions
+
+
+```
+
+
+
+#20. Use random forests using the test data set that utilizes the same target and predictor variables. Does the test data result match the training data result?
+
+```{r}
+# Change the name to eliminate spaces
+colnames(adult_test)[1] <- "maritalStatus"
+
+# Change categorical variables into factors
+adult_test$Income <- factor(adult_test$Income)
+adult_test$maritalStatus <- factor(adult_test$maritalStatus)
+
+# Random Forest 
+rfo2 <- randomForest(formula = Income ~ maritalStatus + Cap_Gains_Losses, data = adult_test, ntree = 100, type = "classification")
+
+# Predictions
+head(rfo2$predicted) # To eliminate knitting 18761 entries
+summary((rfo2$predicted)) # Summary of Predictions
+```
+
+
+```{r}
+a = summary((rfo1$predicted)) # Summary of Predictions for training set
+b = summary((rfo2$predicted)) # Summary of Predictions for testing set
+a[1] / (a[1] + a[2])*100 # Percentage of Income with less than 50k for training set
+b[1] / (b[1] + b[2])*100 # Percentage of Income with less than 50k for testing set
+
+```
+Although the number of records are different between the testing and training set, both models give similar results in terms of the percentage of people with incomes of less than 50k. Training Set (93.0%) and Testing Set (92.97%).
